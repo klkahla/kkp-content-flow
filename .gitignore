@@ -162,3 +162,5 @@ cython_debug/
 #.idea/
 
 experiments/.DS_Store
+
+kkp-content-flow-ui/node_module
