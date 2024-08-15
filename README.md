@@ -1,2 +1,5 @@
 # kkp-content-flow
 Turning workflow steps into an agentic flow.
+
+# Appendix
+https://python.langchain.com/v0.2/docs/tutorials/agents/
