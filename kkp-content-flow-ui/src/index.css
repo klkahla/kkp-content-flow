@@ -40,6 +40,10 @@ html, body, #root {
   justify-content: space-between;
 }
 
+.right-column {
+  background-color: #ffffff; /* Different background color for the right column */
+}
+
 .user-input-container {
   padding: 8px;
   flex-grow: 1;
@@ -88,4 +92,14 @@ button {
 
 button:hover {
   background-color: darkblue;
+}
+
+.output-panel {
+  flex-grow: 1;
+  padding: 10px;
+  margin: 8px 16px 8px 4px;
+  background-color: #f0f0f0; /* Background color for the output panel */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow-y: auto;
 }
