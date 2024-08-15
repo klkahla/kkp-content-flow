@@ -1,22 +1,25 @@
 
+import React from 'react';
 import './App.css';
+import FolderPicker from './components/FolderPicker.tsx';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="content">
+        <div className="left-column">
+          <div className="user-input-container">
+            <textarea placeholder="Enter your prompt here..."></textarea>
+            <FolderPicker />
+          </div>
+          <div className="button-container">
+            <button>Submit</button>
+          </div>
+        </div>
+        <div className="right-column">
+          
+        </div>
+      </div>
     </div>
   );
 }

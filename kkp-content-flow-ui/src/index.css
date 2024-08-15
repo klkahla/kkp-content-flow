@@ -11,3 +11,81 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* src/index.css */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.App {
+  text-align: center;
+  height: 100%;
+}
+
+.content {
+  display: flex;
+  height: 100%;
+}
+
+.left-column, .right-column {
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.left-column {
+  justify-content: space-between;
+}
+
+.user-input-container {
+  padding: 8px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+textarea {
+  width: 100%;
+  flex-grow: 1;
+  resize: none;
+}
+
+.folder-picker-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.folder-picker-container label {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.folder-picker-container input[type="file"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button-container {
+  padding: 16px 0px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: darkblue;
+}
