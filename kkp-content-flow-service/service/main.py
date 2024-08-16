@@ -1,11 +1,27 @@
 import csv
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 
 def create_app():
     app = FastAPI()
+
+    # Define the origins that should be allowed to make requests to this API
+    origins = [
+        "http://localhost:3000",
+        # Add other origins as needed
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     return app
 
 app = create_app()
@@ -28,7 +44,6 @@ async def get_content_workflow(request: Request):
             return {"error": str(e)}
         
     print(f"Concatenated alt text: {concatenated_alt_text}")
-    print(os.environ.get("OPENAI_API_KEY"))
 
     if concatenated_alt_text:
         prompt_message += (
