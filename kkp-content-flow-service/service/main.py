@@ -1,6 +1,5 @@
 import csv
-import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from typing import Optional
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
@@ -11,8 +10,11 @@ def create_app():
 
 app = create_app()
 
-@app.get("/content-workflow")
-def get_content_workflow(prompt_message: str, csv_file_path: Optional[str] = None):
+@app.post("/content-workflow")
+async def get_content_workflow(request: Request):
+    data = await request.json()
+    prompt_message = data.get("prompt_message", "")
+    csv_file_path = data.get("csv_file_path", None)
 
     concatenated_alt_text = ""
 
@@ -52,7 +54,6 @@ def get_content_workflow(prompt_message: str, csv_file_path: Optional[str] = Non
     )
 
     model = ChatOpenAI(model="gpt-4o-mini")
-    # response = execute_task_prompt.invoke(input=prompt_message)
     response = model.invoke(execute_task_prompt.invoke(input=prompt_message))
     print(response.content)
 
