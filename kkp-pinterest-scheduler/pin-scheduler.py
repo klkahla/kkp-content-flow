@@ -3,6 +3,7 @@
 import sys
 import argparse
 from os.path import abspath, dirname, join
+import os
 from dotenv import load_dotenv
 import csv
 from datetime import datetime, timedelta
@@ -89,7 +90,6 @@ def generate_pin_schedule(last_pin, pins, description, pin_link):
 
     for pin in pins:
         next_time = get_next_available_time(last_pin_time)
-        pin['title'] = pin['title']
         pin['description'] = description
         pin['link'] = pin_link
         pin['scheduled_time'] = next_time.strftime('%Y-%m-%dT%H:%M:%S')
@@ -98,6 +98,24 @@ def generate_pin_schedule(last_pin, pins, description, pin_link):
 
     return scheduled_pins
 
+def write_csv_output(scheduled_pins, selected_board_name, output_file_path):
+    headers = ["Title", "Media URL", "Pinterest board", "Thumbnail", "Description", "Link", "Publish date", "Keywords"]
+    with open(output_file_path, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=headers)
+        writer.writeheader()
+        for pin in scheduled_pins:
+            media_url = f"https://kkp-pinterest-scheduler.s3.us-west-2.amazonaws.com/{pin['file_name']}"
+            pin['media_url'] = media_url
+            writer.writerow({
+                "Title": pin['pin_title'],
+                "Media URL": pin['media_url'],
+                "Pinterest board": selected_board_name,
+                "Thumbnail": "", 
+                "Description": pin['description'],
+                "Link": pin['link'],
+                "Publish date": pin['scheduled_time'],
+                "Keywords": "idaho, wedding, elegant, luxury, garden theme, european inspired"
+            })
 
 def main(argv=[]):
     parser = argparse.ArgumentParser(description="Select a Board")
@@ -119,7 +137,6 @@ def main(argv=[]):
     print(f"Selected board: {selected_board.name} (ID: {selected_board.id})")
 
     last_pin = get_last_pin(selected_board.id, access_token)
-    print(f"Last pin: {last_pin}")
 
     csv_file_path = prompt_for_csv_file()
     pins = read_csv_file(csv_file_path)
@@ -130,7 +147,12 @@ def main(argv=[]):
     # Generate pin schedule for pins
     scheduled_pins = generate_pin_schedule(last_pin, pins, description, pin_link)
     for pin in scheduled_pins:
-        print(f"Scheduled pin: {pin['file_name']} at {pin['scheduled_time']}")
+        print(f"Pin: {pin}")
+   
+    # Save the output to a CSV file
+    output_file_path = os.path.join(os.path.dirname(csv_file_path), "scheduled_pins_output.csv")
+    write_csv_output(scheduled_pins, selected_board.name, output_file_path)
+    print(f"Scheduled pins have been written to {output_file_path}")
 
 
 if __name__ == "__main__":

@@ -71,7 +71,6 @@ def get_last_pin(board_id, access_token):
         pins = response.json().get('items', [])
         
         if pins:
-            print(f"Last created pin: {pins[0]}")
             return pins[0]
         else:
             print("No pins found on the board.")
