@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-import subprocess
-import json
 import sys
 import argparse
 from os.path import abspath, dirname, join
 from dotenv import load_dotenv
+import csv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,7 +17,6 @@ if module_path not in sys.path:
 from access_token import AccessToken
 from api_config import ApiConfig
 from arguments import common_arguments
-from board import Board
 from oauth_scope import Scope
 from user import User
 from boards import Board, get_user_boards
@@ -32,6 +30,18 @@ def select_board(boards):
         print("Invalid selection")
         sys.exit(1)
     return boards[selection]
+
+def prompt_for_csv_file():
+    csv_file_path = input("Enter the path to the CSV file of pins to schedule: ")
+    return csv_file_path
+
+def read_csv_file(csv_file_path):
+    pins = []
+    with open(csv_file_path, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            pins.append(row)
+    return pins
 
 def main(argv=[]):
     parser = argparse.ArgumentParser(description="Select a Board")
@@ -51,6 +61,11 @@ def main(argv=[]):
     boards = get_user_boards(args, access_token)
     selected_board = select_board(boards)
     print(f"Selected board: {selected_board.name} (ID: {selected_board.id})")
+
+    # Prompt for CSV file
+    csv_file_path = prompt_for_csv_file()
+    pins = read_csv_file(csv_file_path)
+    print(f"Loaded {len(pins)} pins from {csv_file_path}")
 
 if __name__ == "__main__":
     main(sys.argv[1:])
