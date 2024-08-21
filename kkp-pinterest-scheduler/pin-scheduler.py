@@ -5,7 +5,6 @@ import argparse
 from os.path import abspath, dirname, join
 import os
 from dotenv import load_dotenv
-import csv
 from datetime import datetime, timedelta
 import pytz
 
@@ -22,7 +21,8 @@ from api_config import ApiConfig
 from arguments import common_arguments
 from oauth_scope import Scope
 from user import User
-from boards import Board, get_user_boards, get_last_pin
+from boards import Board, get_user_boards, get_last_pin_across_all_boards
+from csv_utils import read_csv_file, write_csv_output
 
 def select_board(boards):
     print("Select a board:")
@@ -45,14 +45,6 @@ def prompt_for_pin_description():
 def prompt_for_pin_link():
     pin_link = input("Enter the link for all pins: ")
     return pin_link
-
-def read_csv_file(csv_file_path):
-    pins = []
-    with open(csv_file_path, mode='r') as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            pins.append(row)
-    return pins
 
 TIME_SLOTS = [6, 7, 12, 18, 19]  # Time slots in 24-hour format (Mountain Time)
 
@@ -98,25 +90,6 @@ def generate_pin_schedule(last_pin, pins, description, pin_link):
 
     return scheduled_pins
 
-def write_csv_output(scheduled_pins, selected_board_name, output_file_path):
-    headers = ["Title", "Media URL", "Pinterest board", "Thumbnail", "Description", "Link", "Publish date", "Keywords"]
-    with open(output_file_path, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
-        writer.writeheader()
-        for pin in scheduled_pins:
-            media_url = f"https://kkp-pinterest-scheduler.s3.us-west-2.amazonaws.com/{pin['file_name']}"
-            pin['media_url'] = media_url
-            writer.writerow({
-                "Title": pin['pin_title'],
-                "Media URL": pin['media_url'],
-                "Pinterest board": selected_board_name,
-                "Thumbnail": "", 
-                "Description": pin['description'],
-                "Link": pin['link'],
-                "Publish date": pin['scheduled_time'],
-                "Keywords": "idaho, wedding, elegant, luxury, garden theme, european inspired"
-            })
-
 def main(argv=[]):
     parser = argparse.ArgumentParser(description="Select a Board")
     common_arguments(parser)
@@ -136,7 +109,8 @@ def main(argv=[]):
     selected_board = select_board(boards)
     print(f"Selected board: {selected_board.name} (ID: {selected_board.id})")
 
-    last_pin = get_last_pin(selected_board.id, access_token)
+    last_pin = get_last_pin_across_all_boards(boards, access_token)
+    print(f"Last pin: {last_pin}")
 
     csv_file_path = prompt_for_csv_file()
     pins = read_csv_file(csv_file_path)

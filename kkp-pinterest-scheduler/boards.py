@@ -1,8 +1,8 @@
 import sys
 import requests
-import argparse
 from os.path import abspath, dirname, join
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -53,7 +53,6 @@ def get_user_boards(args, access_token):
 
 
 def get_last_pin(board_id, access_token):
-    print(access_token.access_token)
     url = f"https://api.pinterest.com/v5/boards/{board_id}/pins?board_id={board_id}"
     headers = {
         "Authorization": f"Bearer {access_token.access_token}",
@@ -78,3 +77,11 @@ def get_last_pin(board_id, access_token):
     except requests.exceptions.RequestException as e:
         print(f"Failed to fetch pins: {e}")
         return None
+    
+def get_last_pin_across_all_boards(boards, access_token):
+    last_pin = None
+    for board in boards:
+        board_last_pin = get_last_pin(board.id, access_token)
+        if last_pin is None or datetime.strptime(board_last_pin['created_at'], '%Y-%m-%dT%H:%M:%S') > datetime.strptime(last_pin['created_at'], '%Y-%m-%dT%H:%M:%S'):
+            last_pin = board_last_pin
+    return last_pin
