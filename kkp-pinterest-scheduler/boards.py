@@ -1,6 +1,5 @@
-import subprocess
-import json
 import sys
+import requests
 import argparse
 from os.path import abspath, dirname, join
 from dotenv import load_dotenv
@@ -51,3 +50,32 @@ def get_user_boards(args, access_token):
         ))
     user.print_multiple(args.page_size, "board", Board, board_iterator)
     return boards
+
+
+def get_last_pin(board_id, access_token):
+    print(access_token.access_token)
+    url = f"https://api.pinterest.com/v5/boards/{board_id}/pins?board_id={board_id}"
+    headers = {
+        "Authorization": f"Bearer {access_token.access_token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    params = {
+        "page_size": 1,  # Get only the most recent pin
+        "sort": "newest"  # Sort pins by newest first
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()  # Raise an error for bad status codes
+        pins = response.json().get('items', [])
+        
+        if pins:
+            print(f"Last created pin: {pins[0]}")
+            return pins[0]
+        else:
+            print("No pins found on the board.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch pins: {e}")
+        return None
