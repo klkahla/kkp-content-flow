@@ -1,6 +1,5 @@
 # kkp-content-flow-service/service/alt_text_repository.py
 
-from .network.api_service import ApiService
 
 class AltTextRepository:
     def __init__(self, api_service, api_url):
