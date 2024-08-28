@@ -1,9 +1,14 @@
 import csv
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
+from .utils.utils import Utils
+from .network.api_service import ApiService
+from .repository.alt_text_repository import AltTextRepository
+
 
 def create_app():
     app = FastAPI()
@@ -72,4 +77,48 @@ async def get_content_workflow(request: Request):
     response = model.invoke(execute_task_prompt.invoke(input=prompt_message))
     print(response.content)
 
+    return response
+
+@app.get("/alt-text")
+async def get_alt_text(directory_path: str, keywords: Optional[str] = None):
+    csv_file_name = "AltTextAI_SEO_Output.csv"
+    csv_file_path = directory_path + "/" + csv_file_name
+
+    api_key = os.getenv("ALTTEXTSEO_API_KEY")
+    api_url = 'https://alttext.ai/api/v1/images'
+    
+    api_service = ApiService(api_key)
+    alt_text_repository = AltTextRepository(api_service, api_url)
+
+    Utils.create_csv_file(csv_file_path)
+
+    output_data = []
+
+    try:
+        for root, _, files in os.walk(directory_path):
+            for file in files:
+                if file.lower().endswith('.jpg'):
+                    file_path = os.path.join(root, file)
+                    encoded_file_path = Utils.encode_image_to_base64(file_path)
+                    response = alt_text_repository.create_image(encoded_file_path, keywords)
+                    print(response)
+
+                    if response and 'alt_text' in response:
+                        output_data.append((file, response['alt_text']))
+                    else:
+                        print(f"Failed to get alt_text for {file}")
+            
+        # Sort the output data based on the filenames
+        output_data.sort(key=lambda x: Utils.natural_sort_key(x[0]))
+
+        # Save the sorted data to the CSV file
+        Utils.save_output_to_csv(csv_file_path, output_data)
+
+    except Exception as e:
+        print(f"An error occurred while iterating over the directory: {e}")
+        return {"error": str(e)}
+
+    response = {
+        "csv_file_path": csv_file_path
+    }
     return response
