@@ -42,3 +42,7 @@ class Utils:
             writer = csv.writer(file)
             writer.writerow(["file_name", "alt_text"])
             writer.writerows(data)
+
+    @staticmethod
+    def natural_sort_key(s):
+        return [int(text) if text.isdigit() else text.lower() for text in re.split('(\d+)', s)]
