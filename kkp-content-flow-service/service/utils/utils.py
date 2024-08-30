@@ -1,5 +1,6 @@
 import base64
 import csv
+import re
 
 class Utils:
     @staticmethod

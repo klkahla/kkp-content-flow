@@ -1,5 +1,8 @@
 import csv
 import os
+import time
+import threading
+import queue
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
@@ -63,8 +66,7 @@ async def get_content_workflow(request: Request):
     execute_task_prompt = PromptTemplate(
         template="""`{input}`.
 
-        Perform the task by understanding the problem, the target client, and being smart
-        and efficient. Write a detailed response and when confronted with choices, make a 
+        Perform the task by understanding the problem, the target client, and being innovative. Write a detailed response and when confronted with choices, make a 
         decision yourself with reasoning.
 
         You must do well or I won't be able to book any more weddings and my business will die. 
@@ -81,6 +83,8 @@ async def get_content_workflow(request: Request):
 
 @app.get("/alt-text")
 async def get_alt_text(directory_path: str, keywords: Optional[str] = None):
+    start_time = time.time()
+
     csv_file_name = "AltTextAI_SEO_Output.csv"
     csv_file_path = directory_path + "/" + csv_file_name
 
@@ -94,19 +98,29 @@ async def get_alt_text(directory_path: str, keywords: Optional[str] = None):
 
     output_data = []
 
+    q = queue.Queue()
+    num_threads = 4
+    threads = []
+
+    for i in range(num_threads):
+        t = threading.Thread(target=worker, args=(q, alt_text_repository, output_data, keywords))
+        t.start()
+        threads.append(t)
+
     try:
         for root, _, files in os.walk(directory_path):
             for file in files:
                 if file.lower().endswith('.jpg'):
                     file_path = os.path.join(root, file)
-                    encoded_file_path = Utils.encode_image_to_base64(file_path)
-                    response = alt_text_repository.create_image(encoded_file_path, keywords)
-                    print(response)
+                    print(f"Processing {file_path}")
+                    q.put(file_path)
 
-                    if response and 'alt_text' in response:
-                        output_data.append((file, response['alt_text']))
-                    else:
-                        print(f"Failed to get alt_text for {file}")
+        q.join()
+
+        for i in range(num_threads):
+            q.put(None)
+        for t in threads:
+            t.join()
             
         # Sort the output data based on the filenames
         output_data.sort(key=lambda x: Utils.natural_sort_key(x[0]))
@@ -118,7 +132,28 @@ async def get_alt_text(directory_path: str, keywords: Optional[str] = None):
         print(f"An error occurred while iterating over the directory: {e}")
         return {"error": str(e)}
 
+    end_time = time.time()  # Record the end time
+    elapsed_time = end_time - start_time  # Calculate the elapsed time
+    print(f"Time taken to process get_alt_text: {elapsed_time:.2f} seconds")
+
     response = {
         "csv_file_path": csv_file_path
     }
     return response
+
+def worker(q, alt_text_repository, output_data, keywords):
+    while True:
+        file_path = q.get()
+        if file_path is None:
+            break
+        try:
+            encoded_file_path = Utils.encode_image_to_base64(file_path)
+            response = alt_text_repository.create_image(encoded_file_path, keywords)
+            print(response)
+            if response and 'alt_text' in response:
+                output_data.append((os.path.basename(file_path), response['alt_text']))
+            else:
+                print(f"Failed to get alt_text for {file_path}")
+        except Exception as e:
+            print(f"Error processing {file_path}: {e}")
+        q.task_done()
