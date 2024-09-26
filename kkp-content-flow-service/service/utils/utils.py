@@ -18,8 +18,6 @@ class Utils:
                     concatenated_alt_text = " ".join(alt_texts)
             except Exception as e:
                 return {"error": str(e)}
-            
-        print(f"Concatenated alt text: {concatenated_alt_text}")
 
         if concatenated_alt_text:
             prompt_message += (
@@ -30,6 +28,7 @@ class Utils:
                 "****************************************"
                 "\n\n"
             )
+        print("Final prompt message: ", prompt_message)
         return prompt_message
         
 

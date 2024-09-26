@@ -11,6 +11,7 @@ from langchain_openai import ChatOpenAI
 from .utils.utils import Utils
 from .network.api_service import ApiService
 from .repository.alt_text_repository import AltTextRepository
+from .repository.multi_agent_repository import MultiAgentRepository
 
 
 def create_app():
@@ -57,10 +58,15 @@ async def get_content_workflow(request: Request):
 
     return response
 
-@app.get("/multi-agent-content-workflow")
+@app.post("/multi-agent-content-workflow")
 async def get_multi_agent_content_workflow(request: Request):
     data = await request.json()
     prompt_message = Utils.extract_prompt_from_api(data)
+
+    model = ChatOpenAI(model="gpt-4o-mini")
+
+    multi_agent_repository = MultiAgentRepository(model)
+    multi_agent_repository.get_content(prompt_message)
 
 
 @app.get("/alt-text")
