@@ -37,31 +37,7 @@ app = create_app()
 @app.post("/content-workflow")
 async def get_content_workflow(request: Request):
     data = await request.json()
-    prompt_message = data.get("prompt_message", "")
-    csv_file_path = data.get("csv_file_path", None)
-
-    concatenated_alt_text = ""
-
-    if csv_file_path:
-        try:
-            with open(csv_file_path, mode='r') as csv_file:
-                csv_reader = csv.DictReader(csv_file)
-                alt_texts = [row['alt_text'] for row in csv_reader]
-                concatenated_alt_text = " ".join(alt_texts)
-        except Exception as e:
-            return {"error": str(e)}
-        
-    print(f"Concatenated alt text: {concatenated_alt_text}")
-
-    if concatenated_alt_text:
-        prompt_message += (
-            "\n\n" 
-            "I have provided you a timeline of images using alt-text. You may use this additional descriptive information as you see fit to improve the content.\n\n"
-            "***** TIMELINE OF IMAGES USING ALT-TEXT *****\n\n" 
-            f"{concatenated_alt_text}\n\n"
-            "****************************************"
-            "\n\n"
-        )
+    prompt_message = Utils.extract_prompt_from_api(data)
 
     execute_task_prompt = PromptTemplate(
         template="""`{input}`.
@@ -80,6 +56,12 @@ async def get_content_workflow(request: Request):
     print(response.content)
 
     return response
+
+@app.get("/multi-agent-content-workflow")
+async def get_multi_agent_content_workflow(request: Request):
+    data = await request.json()
+    prompt_message = Utils.extract_prompt_from_api(data)
+
 
 @app.get("/alt-text")
 async def get_alt_text(directory_path: str, keywords: Optional[str] = None):
@@ -110,7 +92,7 @@ async def get_alt_text(directory_path: str, keywords: Optional[str] = None):
     try:
         for root, _, files in os.walk(directory_path):
             for file in files:
-                if file.lower().endswith('.jpg'):
+                if file.lower().endswith('.jpg') and not file.startswith('._'):
                     file_path = os.path.join(root, file)
                     print(f"Processing {file_path}")
                     q.put(file_path)
