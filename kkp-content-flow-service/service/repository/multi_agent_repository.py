@@ -31,7 +31,18 @@ class MultiAgentRepository:
         editor_agent = self.create_agent(
             self.model,
             [],
-            system_message="You must either approve the content from the blog writer or provide a list of improvements to the blog. Any content you approve will be scheduled on the blog and available for target clients to consume. If there are no improvements to be made, print the final blog starting with FINAL ANSWER",
+            system_message="""
+                You are an editor who specializes in creating engaging content for target clients.
+                This content compells target clients to reach out to book you as their wedding photographer.
+
+                You must either approve the content from the blog writer or provide a list of improvements to the blog. 
+                Edit this content looking at themses such as grammar, engagement, conciseness, relatability, and seo optimization. 
+                Ensure the content embodies your core values of wonder, joy and adventure.
+                Any content you approve will be scheduled on the blog and available for target clients to engage with. 
+                
+                If the content is approved, print the final blog starting with FINAL ANSWER.
+                If the content needs improvement, provide the blog and a list of improvements to be made.
+                """,
         )
         editor_node = functools.partial(self.agent_node, agent=editor_agent, name="editor")
 
@@ -82,9 +93,14 @@ class MultiAgentRepository:
             # Maximum number of steps to take in the graph
             {"recursion_limit": 10},
         )
+        final_event = None
         for s in events:
             print(s)
             print("----")
+            final_event = s
+
+        print(final_event['editor']['messages'][0].content)
+        return final_event['editor']['messages'][0].content
 
 
     def create_agent(self, llm, tools, system_message: str):

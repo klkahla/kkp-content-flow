@@ -1,10 +1,11 @@
-import csv
 import os
 import time
 import threading
 import queue
+import json
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from typing import Optional
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
@@ -63,10 +64,12 @@ async def get_multi_agent_content_workflow(request: Request):
     data = await request.json()
     prompt_message = Utils.extract_prompt_from_api(data)
 
-    model = ChatOpenAI(model="gpt-4o-mini")
+    model = ChatOpenAI(model="gpt-4o")
 
     multi_agent_repository = MultiAgentRepository(model)
-    multi_agent_repository.get_content(prompt_message)
+    result = multi_agent_repository.get_content(prompt_message)
+
+    return result
 
 
 @app.get("/alt-text")
