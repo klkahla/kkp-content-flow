@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from src.models.pin import Session, Pin
 from src.services.pinterest import PinterestService
+from src.services.email_service import EmailService
 from src.services.csv_handler import CSVHandler
 from src.utils.logger import logger
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ class PinterestScheduler:
     def __init__(self):
         self.pinterest_service = PinterestService()
         self.session = Session()
-
+        self.email_service = EmailService()
     def process_next_pin(self):
         """
         Process the oldest pending pin
@@ -47,7 +48,10 @@ class PinterestScheduler:
             if pin:
                 pin.status = 'failed'
                 self.session.commit()
-                # TODO: Send email notification here
+                # try:
+                #     self.email_service.send_failure_notification(pin, str(e))
+                # except Exception as email_error:
+                #     logger.error(f"Failed to send email notification: {str(email_error)}")
         finally:
             self.session.close()
 
