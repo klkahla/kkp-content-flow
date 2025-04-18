@@ -1,7 +1,7 @@
 import os
 from pinterest.client import PinterestAPI
 from dotenv import load_dotenv
-
+import base64
 load_dotenv()
 
 class PinterestService:
@@ -15,15 +15,21 @@ class PinterestService:
         Create a pin on Pinterest
         """
         try:
+           
+            with open(pin.image_path, "rb") as image_file:
+                base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+
             # TODO: format the pin data for posting to Pinterest
             response = self.api.pins.create(
                 board=pin.board_id,
                 media_source={
-                    "source_type": "image_url",
-                    "url": pin.image_path
+                    "source_type": "image_base64",
+                    "content_type": "image/jpeg",
+                    "data": base64_image
                 },
                 title=pin.title,
-                description=pin.description
+                description=pin.description,
+                link=pin.link
             )
             return response
         except Exception as e:

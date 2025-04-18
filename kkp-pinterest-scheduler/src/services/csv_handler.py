@@ -47,6 +47,7 @@ class CSVHandler:
 
                 # Create database record
                 pin = Pin(
+                    link=row['link'],
                     title=row['title'],
                     description=row['description'],
                     image_path=remote_path,
