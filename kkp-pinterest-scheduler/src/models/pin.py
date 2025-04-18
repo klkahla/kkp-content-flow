@@ -12,7 +12,7 @@ class Pin(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     image_path = Column(String(255), nullable=False)
-    board = Column(String(255), nullable=False)
+    board_id = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 # Database setup

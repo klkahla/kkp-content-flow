@@ -6,6 +6,7 @@ from src.services.pinterest import PinterestService
 from src.services.csv_handler import CSVHandler
 from src.utils.logger import logger
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
@@ -21,7 +22,6 @@ class PinterestScheduler:
         try:
             # Get the oldest pending pin
             pin = self.session.query(Pin)\
-                .filter(Pin.status == 'pending')\
                 .order_by(Pin.created_at.asc())\
                 .first()
 
@@ -32,17 +32,22 @@ class PinterestScheduler:
             # Create pin on Pinterest
             self.pinterest_service.create_pin(pin)
 
-            # Update pin status
-            pin.status = 'posted'
-            pin.posted_at = datetime.utcnow()
+            # Delete the image file from Raspberry Pi if it exists
+            if os.path.exists(pin.image_path):
+                os.remove(pin.image_path)
+                logger.info(f"Deleted image file: {pin.image_path}")
+
+            # Delete the pin from database
+            self.session.delete(pin)
             self.session.commit()
-            logger.info(f"Successfully posted pin: {pin.title}")
+            logger.info(f"Successfully posted and deleted pin: {pin.title}")
 
         except Exception as e:
             logger.error(f"Error processing pin: {str(e)}")
             if pin:
                 pin.status = 'failed'
                 self.session.commit()
+                # TODO: Send email notification here
         finally:
             self.session.close()
 

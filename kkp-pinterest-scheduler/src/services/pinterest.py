@@ -15,8 +15,9 @@ class PinterestService:
         Create a pin on Pinterest
         """
         try:
+            # TODO: format the pin data for posting to Pinterest
             response = self.api.pins.create(
-                board=pin.board,
+                board=pin.board_id,
                 media_source={
                     "source_type": "image_url",
                     "url": pin.image_path
