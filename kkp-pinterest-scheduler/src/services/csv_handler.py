@@ -38,7 +38,8 @@ class CSVHandler:
                     continue
 
                 # Transfer image to Raspberry Pi
-                local_image_path = row['image_path']
+                local_image_path = row['file_name']
+                print(f"Transferring image to Raspberry Pi: {local_image_path}")
                 remote_filename = os.path.basename(local_image_path)
                 remote_path = self.file_transfer.transfer_file(
                     local_image_path, 
@@ -46,6 +47,7 @@ class CSVHandler:
                 )
 
                 # Create database record
+                print(f"Creating database record for pin")
                 pin = Pin(
                     link=row['link'],
                     title=row['title'],
@@ -54,6 +56,8 @@ class CSVHandler:
                     board_id=board_id
                 )
                 self.session.add(pin)
+
+                print(f"(Done adding pin)")
             
             self.session.commit()
             logger.info("Successfully processed all pins from CSV")

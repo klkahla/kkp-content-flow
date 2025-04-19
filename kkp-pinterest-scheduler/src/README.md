@@ -58,7 +58,31 @@ sudo apt-get install postgresql postgresql-contrib
 sudo -u postgres psql
 CREATE DATABASE pinterest_db;
 CREATE USER your_raspberry_pi_user WITH PASSWORD 'your_raspberry_pi_password';
+
+-- Create the user with login privilege
+CREATE USER your_raspberry_pi_user WITH PASSWORD 'your_raspberry_pi_password' LOGIN;
+
+-- Create the database with the user as owner
+CREATE DATABASE pinterest_db OWNER your_raspberry_pi_user;
+
+-- Connect to the pinterest_db
+\c pinterest_db
+
+-- Grant all privileges on the database
 GRANT ALL PRIVILEGES ON DATABASE pinterest_db TO your_raspberry_pi_user;
+
+-- Grant schema privileges
+GRANT ALL ON SCHEMA public TO your_raspberry_pi_user;
+ALTER SCHEMA public OWNER TO your_raspberry_pi_user;
+
+-- Grant table privileges
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO your_raspberry_pi_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO your_raspberry_pi_user;
+
+-- Set default privileges for future objects
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO your_raspberry_pi_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO your_raspberry_pi_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO your_raspberry_pi_user;
 \q
 
 # Configure PostgreSQL for remote connections
