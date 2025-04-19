@@ -80,7 +80,7 @@ sudo ufw allow 5432/tcp
 
 Prepare your CSV file with the following columns:
 ```csv
-title,description,board,image_path
+file_name,title,description,board_id,link
 My Pin Title,A great description,couples,/path/to/local/image.jpg
 ```
 

@@ -1,5 +1,5 @@
-from src.services.csv_handler import CSVHandler
-from src.utils.logger import logger
+from services.csv_handler import CSVHandler
+from utils.logger import logger
 from dotenv import load_dotenv
 import sys
 

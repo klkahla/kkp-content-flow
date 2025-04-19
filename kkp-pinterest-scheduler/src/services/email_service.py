@@ -3,7 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
-from src.utils.logger import logger
+from utils.logger import logger
 
 load_dotenv()
 

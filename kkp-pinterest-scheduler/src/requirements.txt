@@ -1,4 +1,5 @@
-python-pinterest-api==5.0.0
+pinterest-api-sdk==0.2.5
+numpy==1.24.3
 pandas==2.1.0
 python-dotenv==1.0.0
 paramiko==3.3.1

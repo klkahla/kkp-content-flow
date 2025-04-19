@@ -2,6 +2,7 @@ import os
 from pinterest.client import PinterestAPI
 from dotenv import load_dotenv
 import base64
+
 load_dotenv()
 
 class PinterestService:

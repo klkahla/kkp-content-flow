@@ -1,11 +1,11 @@
 import schedule
 import time
 from datetime import datetime
-from src.models.pin import Session, Pin
-from src.services.pinterest import PinterestService
-from src.services.email_service import EmailService
-from src.services.csv_handler import CSVHandler
-from src.utils.logger import logger
+from models.pin import Session, Pin
+from services.pinterest import PinterestService
+from services.email_service import EmailService
+from services.csv_handler import CSVHandler
+from utils.logger import logger
 from dotenv import load_dotenv
 import os
 

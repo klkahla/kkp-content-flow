@@ -1,5 +1,5 @@
-from src.models.pin import Session, Pin
-from src.utils.logger import logger
+from models.pin import Session, Pin
+from utils.logger import logger
 from sqlalchemy import func
 
 def check_database():

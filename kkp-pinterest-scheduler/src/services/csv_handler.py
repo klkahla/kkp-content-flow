@@ -1,8 +1,8 @@
 import pandas as pd
 import os
-from src.models.pin import Session, Pin
-from src.services.file_transfer import FileTransferService
-from src.utils.logger import logger
+from models.pin import Session, Pin
+from services.file_transfer import FileTransferService
+from utils.logger import logger
 
 class CSVHandler:
     def __init__(self):
