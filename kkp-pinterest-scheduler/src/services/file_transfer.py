@@ -22,6 +22,8 @@ class FileTransferService:
             sftp = paramiko.SFTPClient.from_transport(transport)
             
             remote_path = os.path.join(self.remote_path, remote_filename)
+            print(f"Local path: {local_path}")
+            print(f"Transferring file to {remote_path}")
             sftp.put(local_path, remote_path)
             
             sftp.close()

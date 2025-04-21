@@ -39,11 +39,12 @@ class CSVHandler:
 
                 # Transfer image to Raspberry Pi
                 local_image_path = row['file_name']
-                print(f"Transferring image to Raspberry Pi: {local_image_path}")
-                remote_filename = os.path.basename(local_image_path)
+                # Get just the filename from the full path
+                local_image_name = os.path.basename(local_image_path)
+                print(f"Transferring local image {local_image_name} to Raspberry Pi")
                 remote_path = self.file_transfer.transfer_file(
                     local_image_path, 
-                    remote_filename
+                    local_image_name
                 )
 
                 # Create database record
